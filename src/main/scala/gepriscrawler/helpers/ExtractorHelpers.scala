@@ -41,6 +41,20 @@ object ExtractorHelpers {
   }
 
 
+  def extractResourceIdsFromLinkByResourceType(matchedHrefs: Iterable[String], resourceType: String) = {
+    val resourceIdRegex = raw"""\/gepris\/$resourceType/(\d*)""".r
+
+    val resourceIds = matchedHrefs.map { matchedHRefElement =>
+      matchedHRefElement match {
+        case resourceIdRegex(id) => id
+        case _ =>  ""
+      }
+    }.filterNot(_ == "")
+
+    resourceIds
+  }
+
+
   def extractResourceIdsFromLinkByResourceTypeAndRegex(elements: Seq[Element])(resourceType: String)(regexes: Seq[String]) = {
 
     // Scala uses the $ symbol for String interpolation.
@@ -49,7 +63,6 @@ object ExtractorHelpers {
 
     enrichedRegexes.flatMap { regex =>
 
-      val resourceIdRegex = raw"""\/gepris\/$resourceType/(\d*)""".r
       val matchedElements: Seq[Element] = elements.filter(s => s.text().matches(regex))
 
       val matchedHrefs = matchedElements
@@ -59,14 +72,7 @@ object ExtractorHelpers {
             .eachAttr("href")
         )
 
-      val resourceIds = matchedHrefs.map { matchedHRefElement =>
-        matchedHRefElement match {
-          case resourceIdRegex(id) => id
-          case _ =>  ""
-        }
-      }.filterNot(_ == "")
-
-      resourceIds
+      extractResourceIdsFromLinkByResourceType(matchedHrefs, resourceType)
     }
   }
 

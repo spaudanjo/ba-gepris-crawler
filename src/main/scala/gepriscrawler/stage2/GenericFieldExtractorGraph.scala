@@ -5,18 +5,69 @@ import java.nio.file.{Path, Paths}
 
 import gepriscrawler.helpers.CrawlerHelpers.CSVRow
 import gepriscrawler._
-import gepriscrawler.helpers.CrawlerHelpers
+import gepriscrawler.helpers.{CrawlerHelpers, ExtractorHelpers}
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Sink, Source}
 import akka.stream.{FlowShape, SourceShape}
 import com.github.tototoshi.csv.CSVReader
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
 
 import scala.collection.JavaConverters._
+import scala.collection.{immutable, mutable}
 import scala.concurrent.ExecutionContext
 
 
 object GenericFieldExtractorGraph {
+
+  def extractGeneralNameValuePairs(detailSection: Elements) = (detailSection
+    .select(".name").eachText().asScala.map { name =>
+    val value = detailSection.select(s".name:matches($name) + span").html()
+    (name, value)
+  } :+
+    (
+      detailSection.select("#tabbutton1 > a > span").text(),
+      detailSection.select(".tab1 + div.content_frame > div").text()
+    )).toVector
+
+  def extractResourceTitle(detailSection: Elements): Seq[(String, String)] =
+    Seq(
+      ("ResourceTitle" -> detailSection.select("h3").html())
+    )
+
+  def extractTypeAndProjectIdsFromProjectsTree(detailSection: Elements, resourceType: String): Seq[(String, String)] = {
+    // Extract element section for project type
+    // Then, within the context of this project type, select all project links
+
+    val projectsSectionSelector: String = resourceType match {
+      case "institution" => "#projekteNachProgrammen"
+      case "person" => "#projekteNachRolle"
+      case _ => ""
+    }
+
+    val fullProjectsSectionSelector = s"$projectsSectionSelector > ul > li > a"
+
+    // If we are not on a institution or person detail page,
+    // then there won't be any referenced projects so we simply return an empty list
+    if (projectsSectionSelector == "") {
+      return Seq()
+    }
+
+    detailSection
+      .select(fullProjectsSectionSelector)
+      .eachText()
+      .asScala
+      .flatMap { relationType =>
+
+        val projectLinks = detailSection
+          .select(s"$fullProjectsSectionSelector:matches($relationType) + ul > li > ul > li > div > div > a")
+          .eachAttr("href")
+          .asScala
+
+        val projectIds = ExtractorHelpers.extractResourceIdsFromLinkByResourceType(projectLinks, "projekt")
+        projectIds.map {projectId => (s"ProjectRelation: $relationType", projectId)}
+      }
+  }
 
   def getIdsForResourceTypeFromCsv(exportRootPath: Path, resourceType: String)(implicit actorSystem: akka.actor.ActorSystem, streamMaterializer: akka.stream.Materializer, executionContext: ExecutionContext) = {
     val csvPathResourceIds: Path = Paths.get(exportRootPath.toString, "stage1", resourceType, s"crawled_${resourceType}_ids.csv")
@@ -47,7 +98,10 @@ object GenericFieldExtractorGraph {
     val exportPath = Paths.get(exportRootPath.toString, "stage2")
     (new File(exportPath.toString)).mkdirs()
 
-    val resourceTypes = gepriscrawler.GeprisResources.resourceList.map(_._1).toList
+    val resourceTypes = gepriscrawler.GeprisResources.resourceList
+//      //TODO: FILTER WIEDER ENTFERNEN, DAMIT AUCH PROJECT WIEDER MIT EINBEZOGEN WIRD!
+//      .filter(_._1 != "project")
+      .map(_._1).toList
 
     val genericFieldExtractionsCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.createCsvFileWriterSink(
       exportPath,
@@ -57,7 +111,7 @@ object GenericFieldExtractorGraph {
 
     case class ResourceIdentifier(resourceType: String, resourceId: String)
 
-    val resourceTypesAndIdsAndHtml: List[ResourceIdentifier] = resourceTypes.flatMap { rt =>
+    val getResourceIdentifiers: List[ResourceIdentifier] = resourceTypes.flatMap { rt =>
       getIdsForResourceTypeFromCsv(exportRootPath, rt).map { id =>
         ResourceIdentifier(rt, id)
       }
@@ -70,23 +124,17 @@ object GenericFieldExtractorGraph {
         val html = scala.io.Source.fromFile(filePath).mkString
 
         val body: Document = Jsoup.parse(html)
-        val detailSection = body.select("#detailseite > div > div > div.content_frame > div.detailed")
+        val detailSection: Elements = body.select("#detailseite > div > div > div.content_frame > div.detailed")
 
-        val namesAndValues = (detailSection
-          .select(".name").eachText().asScala.map { name =>
-          val value = detailSection.select(s".name:matches($name) + span").html()
-          (name, value)
-        } :+
-          (
-            detailSection.select("#tabbutton1 > a > span").text(),
-            detailSection.select(".tab1 + div.content_frame > div").text()
-          )).toVector
+        val namesAndValues: immutable.Seq[(String, String)] = extractGeneralNameValuePairs(detailSection) ++
+          extractTypeAndProjectIdsFromProjectsTree(detailSection, resourceTriple.resourceType) ++
+          extractResourceTitle(detailSection)
 
         print(s"\rExtracted all fields by generic selector approach for resource: '${resourceTriple.resourceType}' - '${resourceTriple.resourceId}'                                                   ")
         namesAndValues.map(nameAndValue => Vector(resourceTriple.resourceType, resourceTriple.resourceId, nameAndValue._1, nameAndValue._2))
       }
 
-    val resourceTypesAndIdsAndHtmlGraph = Source(resourceTypesAndIdsAndHtml)
+    val resourceTypesAndIdsAndHtmlGraph = Source(getResourceIdentifiers)
     val extractedFields: FlowShape[ResourceIdentifier, Vector[String]] = b.add(extractFieldsGraph)
     val extractedFieldsBC = b.add(Broadcast[Vector[String]](2))
 
