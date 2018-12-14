@@ -10,14 +10,7 @@ import gepriscrawler.helpers.CrawlerHelpers
 import gepriscrawler.stage0.CrawlAndExtractSubjectAreasGraph
 import gepriscrawler.stage0.resourceidstocrawl.GetAndSaveResourceIdsToCrawlGraph
 import gepriscrawler.stage1.crawlresourcedetails.CrawlResourceDetailsGraph
-import gepriscrawler.stage2.CrawlAndExtractInstitutions.ExtractInstitutionsGraph
-import gepriscrawler.stage2.CrawlAndExtractPersons.ExtractPersonsGraph
-import gepriscrawler.stage2.extractprojects.ExtractProjectsGraph
-import gepriscrawler.stage2.{CreateFinalArtefacts, GenericFieldExtractorGraph}
-import gepriscrawler.stage3.sqliteexport.SqliteAccess
-import gepriscrawler.stage4.DQChecks
-
-import scala.concurrent.Future
+import gepriscrawler.stage2.GenericFieldExtractorGraph
 
 package object GeprisCrawler {
 
@@ -30,9 +23,7 @@ package object GeprisCrawler {
 
   private def determineStageLevelToStartFrom(exportPath: Path) = {
     val listOfStageDirectories = getListOfSubDirectories(exportPath.toString)
-    if (listOfStageDirectories.contains("stage4")) 4
-    else if (listOfStageDirectories.contains("stage3")) 3
-    else if (listOfStageDirectories.contains("stage2")) 2
+    if (listOfStageDirectories.contains("stage2")) 2
     else if (listOfStageDirectories.contains("stage1")) 1
     else 0
   }
@@ -113,43 +104,12 @@ package object GeprisCrawler {
           case(_) => println("Done with the generic field extraction of all resources (projects, people, institutions).")
         }
 
-        .flatMap(_ => Source.fromGraph(ExtractProjectsGraph.graph(exportPath)).runWith(Sink.ignore))
-        .andThen {
-          case(_) => println("Done with extracting projects.")
-        }
-
-        .flatMap(_ => Source.fromGraph(ExtractPersonsGraph.graph(exportPath)).runWith(Sink.ignore))
-        .andThen {
-          case(_) => println("Done with extracting persons.")
-        }
-
-        .flatMap(_ => Source.fromGraph(ExtractInstitutionsGraph.graph(exportPath)).runWith(Sink.ignore))
-        .andThen {
-          case(_) => println("Done with extracting institutions.")
-        }
-
         .andThen{
           case(_) => println("Done with STAGE 2.")
         }
     }
 
 
-    // STAGE 3 (Aggregate and pac resulst; create sqlite dump)
-    def stage3(s: Any) = {
-      println("Go on with stage3")
-
-      CrawlerHelpers.deleteAndCreateStageFolderByStageNumber(exportPath, 3)
-
-      CreateFinalArtefacts.copyCsvToFinalFolder(exportPath)
-      CreateFinalArtefacts.copyNumberOfResourcesTxtFilesToFinalFolder(exportPath)
-//      CreateFinalArtefacts.copyDataQualityScriptsToFinalFolder(exportPath)
-//      DQChecks.check(exportPath)
-
-//      SqliteAccess.dumpExtractsToDb(exportPath)
-//      CreateFinalArtefacts.renameFinalFolder(exportPath, crawlName)
-
-      Future.successful(AnyRef)
-    }
 
     val stageLevelToStartFrom = stageLevelToStartFromByUser match {
       case Some(level) => level
@@ -159,10 +119,9 @@ package object GeprisCrawler {
     println(s"Folder name of the crawl: $crawlName")
 
     (stageLevelToStartFrom match {
-      case (0) => stage0().flatMap(stage1).flatMap(stage2).flatMap(stage3)
-      case (1) => stage1().flatMap(stage2).flatMap(stage3)
-      case (2) => stage2().flatMap(stage3)
-      case (3) => stage3()
+      case (0) => stage0().flatMap(stage1).flatMap(stage2)
+      case (1) => stage1().flatMap(stage2)
+      case (2) => stage2()
     })
       .onComplete { status =>
         val successOrFailure = if(status.isSuccess) "successfully" else "by failure"
