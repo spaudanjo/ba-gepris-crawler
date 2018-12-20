@@ -98,7 +98,7 @@ object CrawlResourceDetailsGraph {
 
     val csvHeader = gepriscrawler.GeprisResources.resourceList(resourceType).csvHeader
 
-    val crawledResourceIdsCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.createCsvFileWriterSink(exportPath, s"crawled_${resourceType}_ids", Seq(s"${resourceType}_id"))
+    val crawledResourceIdsCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.CsvFileWriterSinkCreator.create(exportPath, s"crawled_${resourceType}_ids", Seq(s"${resourceType}_id"))
 
 
 

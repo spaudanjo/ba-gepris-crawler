@@ -40,7 +40,7 @@ object GetAndSaveResourceIdsToCrawlGraph {
     }
 
     else {
-      val resourceIdsAndNameCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.createCsvFileWriterSink(exportPath, s"${resourceName}_ids_and_names", Seq(s"${resourceName}_id", "name"), append = false)
+      val resourceIdsAndNameCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.CsvFileWriterSinkCreator.create(exportPath, s"${resourceName}_ids_and_names", Seq(s"${resourceName}_id", "name"), append = false)
 
       val cookiePinger: SourceShape[Boolean] = b.add(Source.repeat(false))
       val cookieFlow: FlowShape[Boolean, Cookie] = b.add(CookieFlowGraph.graph)

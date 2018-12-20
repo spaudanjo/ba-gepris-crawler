@@ -22,7 +22,7 @@ object CrawlAndExtractSubjectAreasGraph {
     import GraphDSL.Implicits._
 
     val exportPath = Paths.get(exportRootPath.toString, "stage0")
-    val subjectAreasCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.createCsvFileWriterSink(
+    val subjectAreasCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.CsvFileWriterSinkCreator.create(
       exportPath, "subject_areas",
       Seq("subject_area", "review_board", "research_area")
     )

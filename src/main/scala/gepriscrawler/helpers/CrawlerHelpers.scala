@@ -46,23 +46,35 @@ object CrawlerHelpers {
     alreadyCrawledResourceIds
   }
 
-
-  def createCsvFileWriterSink(exportPath: Path, name: String, csvHeader: CSVRow, append: Boolean = true)(implicit actorSystem: akka.actor.ActorSystem, streamMaterializer: akka.stream.Materializer, executionContext: ExecutionContext) ={
+  object CsvFileWriterSinkCreator {
     implicit object MyFormat extends DefaultCSVFormat {
       override val quoting = QUOTE_NONNUMERIC
     }
 
-    val filePath = s"$exportPath/$name.csv"
-    val fileExisted = Files.exists(Paths.get(filePath))
-    val file = new File(filePath)
-    val csvWriter = CSVWriter.open(file, append)
-    // If the file already existed, we don't need to write the header row once more
-    if(!fileExisted) {
-      csvWriter.writeRow(csvHeader)
+    private def writeHeaderIfFileDoesntExistYet(filePath: String, csvWriter: CSVWriter, csvHeader: CrawlerHelpers.CSVRow) = {
+      if(!Files.exists(Paths.get(filePath))) {
+        csvWriter.writeRow(csvHeader)
+      }
     }
-    Flow[CSVRow].watchTermination()((_, f) => f.foreach(_ => csvWriter.close()))
-      .to(Sink.foreach(csvWriter.writeRow))
+
+    private def configureCsvWriterSink(csvWriter: CSVWriter)(implicit actorSystem: akka.actor.ActorSystem, streamMaterializer: akka.stream.Materializer, executionContext: ExecutionContext) = {
+      Flow[CSVRow].watchTermination()((_, f) => f.foreach(_ => csvWriter.close()))
+        .to(Sink.foreach(csvWriter.writeRow))
+    }
+
+    private def openAndConfigureCsvWriterSink(csvHeader: CSVRow, append: Boolean, filePath: String, file: File)(implicit actorSystem: akka.actor.ActorSystem, streamMaterializer: akka.stream.Materializer, executionContext: ExecutionContext) = {
+      val csvWriter = CSVWriter.open(file, append)
+      writeHeaderIfFileDoesntExistYet(filePath, csvWriter, csvHeader)
+      configureCsvWriterSink(csvWriter)
+    }
+
+    def create(exportPath: Path, fileName: String, csvHeader: CSVRow, append: Boolean = true)(implicit actorSystem: akka.actor.ActorSystem, streamMaterializer: akka.stream.Materializer, executionContext: ExecutionContext) ={
+      val filePath = s"$exportPath/$fileName.csv"
+      val file = new File(filePath)
+      openAndConfigureCsvWriterSink(csvHeader, append, filePath, file)
+    }
   }
+
 
   def createTextFileWriterSink(fileName: String): Sink[String, Future[IOResult]] =
     Flow[String]

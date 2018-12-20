@@ -103,7 +103,7 @@ object GenericFieldExtractorGraph {
 //      .filter(_._1 != "project")
       .map(_._1).toList
 
-    val genericFieldExtractionsCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.createCsvFileWriterSink(
+    val genericFieldExtractionsCsvWriterSink: Sink[CSVRow, Unit] = CrawlerHelpers.CsvFileWriterSinkCreator.create(
       exportPath,
      "generic_field_extractions",
       List("resource_type", "resource_id", "field_name", "field_value")
