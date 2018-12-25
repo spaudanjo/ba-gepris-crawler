@@ -3,9 +3,9 @@
 *Hinweis: Angaben zu gemachten Beobachtungen und Berechnungen auf Grundlage der gecrawlten Gepris-Daten beziehen sich auf den Stand der Gepris-Website vom 20.10.2018*
 
 
-Der Gepris Crawler ist eine in Scala geschriebene Konsolenanwendung, welche die von der DFG bereitgestellten Förderungsdaten (http://gepris.dfg.de) crawled, extrahiert und in einem Ordner in Form von CSV- und Text-Dateien zur Verfügung stellt. 
-
-Die Software entstand im Rahmen der Anfertigung der Bachelorarbeit von Daniel Spaude im Fach Informatik an der Freien Universität Berlin im Jahr 2018. 
+Der Gepris Crawler besteht aus zwei Komponenten: 
+* eine in Scala geschriebene Konsolenanwendung, welche die von der DFG bereitgestellten Förderungsdaten (http://gepris.dfg.de) crawled und rudimentäres Extracting von Feldern anhand erster einfacherer CSS-Selektor-Regeln vornimmt und in einem Ordner in Form von CSV- und Text-Dateien zur Verfügung stellt
+* einem R-Skript, welches eine spezifischere Extraktion und Organisation der gecrawlten Daten vornimmt 
 
 ## Datenqualität
 Bei der Entwicklung wurde ein wesentlicher Fokus auf die Datenqualität gelegt. 
@@ -194,30 +194,16 @@ Der Crawler legt für einen neuen Crawlingvorgang einen eigenen Ordner an, benan
 
 Bezüglich der erzeugten Endresultate des Crawlers, sind zwei Ordner relevant: 
 
-* ```final``` - hier liegen die primären Ergebnisse in Form von CSV- und Text-Dateien 
+* ```stage0``` - hier liegen erfasste Initialdaten, massgeblich extrahiert aus den Katalogseiten der Gepris (welche und wie viele Resourcen müssen gecrawled werden sowie die Fachsystematik/Subject Areas)
 * ```stage1``` - hier liegen, jeweils in einem eigenen Unterordner für jeden Gepris-Resourcentyp (Projekt, Institution, Person), die HTML-Dateien, welche die Anwendung während des Crawlings von der Gepris-Website geladen hat und auf deren Basis das Extracting durchgeführt wurde
+* ```stage2``` - hier liegt die finale Ausgabedatei des Crawlers: generic_field_extractions.csv
 
-In den meisten Fällen wird sich das Interesse auf die Dateien innerhalb des Ordnes ```final``` konzentrieren. 
+In den meisten Fällen wird sich das Interesse auf die Datei generic_field_extractions.csv konzentrieren. 
 
 In manchen Fällen besteht aber auch Interesse an den HTML-Dateien, zum Beispiel: 
 * zur Überprüfung der korrekten Arbeitsweise des Crawlers
 * falls Interesse an einem nachträglichen Extracting eines Feldes besteht, welcher von der Extractor-Logik des Crawlers nicht beachtet wurde
 * um einen Eindruck zu erhalten, wie die Gepris-Webseite einer bestimmten Ressource zum Zeitpunkt des Crawlings aussah
-
-
-## Inhalt des Ordners 'final'
-
-Der Ordnerinhalt lässt sich leicht in vier grundlegende Kategorien einteilen: 
-
-### Anzahl der vom Gepris-System bereitgestellten Ressourcen
-
-Auf oberster Ebene beinhaltet der Ordner die drei Dateien
-* number_of_institutions_in_gepris_system.txt
-* number_of_persons_in_gepris_system.txt
-* number_of_projects_in_gepris_system.txt
-
-Diese geben pro Resourcentyp die Anzahl der zum Zeitpunkt des Crawling auf der Gepris-Webseite verfügbaren Entitäten an. 
-Die Information wird dabei aus der Navigationleise auf der Katalogseite des jeweiligen Resourcentyps ermittelt, [hier beispielhaft für den Resourcentyp 'Projekte'](http://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt&oldfachgebiet=%23&fachgebiet=%23&nurProjekteMitAB=false&bundesland=DEU%23&oldpeo=%23&peo=%23&zk_transferprojekt=false&teilprojekte=false&teilprojekte=true&bewilligungsStatus=&beginOfFunding=&gefoerdertIn=&oldGgsHunderter=0&ggsHunderter=0&einrichtungsart=-1&findButton=Finden).
 
 
 ### Extraktion aller gefundenen Feldwerte für alle Resourcen
@@ -242,33 +228,15 @@ Es handelt sich also um das Feld 'Term' des Projektes mit der Id '5410165', welc
 Anhand dieses Beispieles wird ein Nachteil dieses generischen Ansatzes deutlich: 
 die Informationen des Feldes 'Term', also über den Förderungszeitraum des Projektes, werden nicht strukturiert aufgeschlüsselt nach Start- und Endjahr, sondern als natürlichsprachliche Ellipse in Form einer Zeichenkette bereitgestellt. Dies erschwert die weitergehende Analyse. 
 
-### Resourcentyp-spezifische und normalisierte Extraktion
+## Resourcentyp-spezifische und normalisierte Extraktion mittels des R-Skriptes 
 
-Das eben beschrieben Problem wird durch die Extractor-Logik des Crawlers gelöst, welcher Resourcentyp-spezifische CSS-Selektoren, reguläre Ausdrücke und in manchen Fällen Transformationen auf den Feldwerten anwendet. 
-Das Ergebnis sind Resourcentyp-spezifische CSV-Dateien, welche dem Normalisierungsideal aus dem Gebiet der relationalen Datenbanken nahe kommen. 
-
-Für Daten, in deren Zentrum der Resourcentyp "Projekt" steht, stellt der Crawler folgende CSV-Dateien bereit: 
-
-* ```project/extracted_project_data.csv``` - stellt allgemeine Kerninformationen zu Projekten dar und hat konkret folgende Spalten: 
-  * project_id - Die DFG-Projektkennung 
-  * title - Der Name des Projektes
-  * project_description - Die Projektbeschreibung
-  * dfg_programme - der Förderungstyp 
-  * funding_start_year
-  * funding_end_year
-  * parent_project_id
-
-  * Darüber hinaus gibt es eine Reihe von Beziehungstabellen, welche project_ids z.B. mit subject_areas, participating_subject_areas, Länder (über die Tabelle projects_international_connections.csv) sowie Personen und Institutionen in Verbinung setzt
-
-Die Spalten der Tabellen ```person/extracted_person_data.csv``` sowie ```institution/extracted_Institution_data.csv``` sind alle selbsterklärend. 
-
-
-
-
-
+Das eben beschrieben Problem wird durch die Extractor-Logik des beiliegenden R-Skriptes `reshape_generic_extracted_fields.R` gelöst, welches Resourcentyp-spezifische CSS-Selektoren, reguläre Ausdrücke und in manchen Fällen Transformationen auf den Feldwerten der Datei `generic_field_extractions.csv` anwendet. 
+Das Ergebnis sind Resourcentyp-spezifische Tabellen in R (welche dann auch einfach als CSV-Dateien z.B. in R-Studio exportiert werden können), welche dem Normalisierungsideal aus dem Gebiet der relationalen Datenbanken nahe kommen. 
+Als Abreitsverzeichnis sollte der Pfad zum Unterordner `stage2` eines Crawling-Durchgangs gesetzt werden. 
 
 ## R-Markdown-Notebook zur Auswertung der Datenqualität
 
-Die Datei ```dataquality-checks.Rmd``` kann zum Beispiels mittels der kostenlosen Software RStudio ausgeführt werden. 
+In der ursprünglichen Version des Crawlers wurde auch das Extracting mittels Scala umgesetzt, welches sich jedoch als nicht effizient und flexibel genug herausgestellt hat. 
+Die Datei ```dataquality-checks.Rmd``` basiert auf den Ausgabeartefakten dieser alten Version, kann aber nach einer Anpassung prinzipiell auch auf die exportierten CSV-Dateien des R-Skriptes `reshape_generic_extracted_fields.R` angewandt werden.  
 Dazu, damit die relativen Pfade innerhalb des R-Skripts korrekt funktionieren, sollte sie im Ausgabeordner eines Crawling-Durchlaufes liegen, den es auszuwerten gibt.
-Sie erzeugt je nach gewähltem Ausgabeformat eine HTML- oder PDF-Datei mit den. 
+Sie erzeugt je nach gewähltem Ausgabeformat eine HTML- oder PDF-Datei mit den Ergebnissen der Qualitätsprüfung. 
