@@ -29,7 +29,7 @@ library(XML)
 library(httr)
 
 root_path_for_number_of_ressources = "./final"
-root_csv_path = "./final/csv"
+root_csv_path = "./r-based-extractions"
 root_html_path = "./stage1"
 
 
@@ -37,7 +37,7 @@ root_html_path = "./stage1"
 
 
 
-Dieses R-Notebook nimmt für diverse Datenqualitätskriterien Messungen des Exports des Gepris-Crawlers vor. 
+Dieses R-Notebook nimmt f??r diverse Datenqualit??tskriterien Messungen des Exports des Gepris-Crawlers vor. 
 Es nimmt an, dass es sich innerhalb des Export-Ordners eines Crawling-Durchlaufes befindet. 
 
 
@@ -48,45 +48,38 @@ Es nimmt an, dass es sich innerhalb des Export-Ordners eines Crawling-Durchlaufe
 subject_areas = read.csv(file.path(root_csv_path, "subject_areas.csv"))
 ```
 
-## Generische Feldwert-Extraktion 
-Basiert auf der Selektion aller Felder mittels des generischen CSS-Selektors '#detailseite > div > div > div.content_frame > div.detailed .name'
-```{r, results='hide'}
-generic_field_extractions = read.csv(file.path(root_csv_path, "generic_field_extractions.csv"))
-```
-
 ## Projekte
 ```{r, results='hide'}
-projects = read.csv(file.path(root_csv_path, "project/extracted_project_data.csv"), stringsAsFactors=FALSE)
-project_ids_to_subject_areas = read.csv(file.path(root_csv_path, "project/project_ids_to_subject_areas.csv"), stringsAsFactors=FALSE)
-project_ids_to_participating_subject_areas = read.csv(file.path(root_csv_path, "project/project_ids_to_participating_subject_areas.csv"), stringsAsFactors=FALSE)
-projects_international_connections = read.csv(file.path(root_csv_path, "project/projects_international_connections.csv"), stringsAsFactors=FALSE)
+projects = read.csv(file.path(root_csv_path, "projects.csv"), stringsAsFactors=FALSE)
+project_ids_to_subject_areas = read.csv(file.path(root_csv_path, "project_subject_areas.csv"), stringsAsFactors=FALSE)
+project_ids_to_participating_subject_areas = read.csv(file.path(root_csv_path, "project_participating_subject_areas.csv"), stringsAsFactors=FALSE)
+projects_international_connections = read.csv(file.path(root_csv_path, "project_international_connections.csv"), stringsAsFactors=FALSE)
 
-project_person_relations = read.csv(file.path(root_csv_path, "project/project_person_relations.csv"), stringsAsFactors=FALSE)
-project_institution_relations = read.csv(file.path(root_csv_path, "project/project_institution_relations.csv"), stringsAsFactors=FALSE)
+cleaned_project_relations = read.csv(file.path(root_csv_path, "cleaned_project_relations.csv"), stringsAsFactors=FALSE)
 ```
 
 ## Personen
 ```{r, results='hide'}
-persons = read.csv(file.path(root_csv_path, "person/extracted_person_data.csv"), stringsAsFactors=FALSE)
+persons = read.csv(file.path(root_csv_path, "people.csv"), stringsAsFactors=FALSE)
 ```
 
 ## Institutionen
 ```{r, results='hide'}
-institutions = read.csv(file.path(root_csv_path, "institution/extracted_institution_data.csv"), stringsAsFactors=FALSE)
+institutions = read.csv(file.path(root_csv_path, "institutions.csv"), stringsAsFactors=FALSE)
 ```
 
 
-# Messungen der einzelnen Datenqualitätskriterien
+# Messungen der einzelnen Datenqualit??tskriterien
 
-## Syntaktische Validität der CSV-Ausgabedateien
-Sollten sich alle CSV-Dateien mittels R öffnen lassen, ist davon auszugehen, dass die CSV-Dateien grundsätzlich syntaktisch valide sind. Zusätzlich kann ein CSV-Linter, wie zum Beispiel https://csvlint.io/, verwendet werden. 
+## Syntaktische Validit??t der CSV-Ausgabedateien
+Sollten sich alle CSV-Dateien mittels R ??ffnen lassen, ist davon auszugehen, dass die CSV-Dateien grunds??tzlich syntaktisch valide sind. Zus??tzlich kann ein CSV-Linter, wie zum Beispiel https://csvlint.io/, verwendet werden. 
 
-## Syntaktische Validität von Literalen einzelner Spalten
-Für ausgewählte Spalten/Felder kann eine einfache syntaktische Prüfung vorgenommen werden. Beispielsweise kann mittels regulärer Ausdrücke geprüft werden, ob Projekt-Ids (Zahlenwerte) oder Jahresangaben syntaktisch korrekt sind (vierstellige Zahlenwerte). Wir beschränken uns auf eine Regel, weitere können bei Bedarf nach dem gleichen Ansatz hinzugefügt werden. 
+## Syntaktische Validit??t von Literalen einzelner Spalten
+F??r ausgew??hlte Spalten/Felder kann eine einfache syntaktische Pr??fung vorgenommen werden. Beispielsweise kann mittels regul??rer Ausdr??cke gepr??ft werden, ob Projekt-Ids (Zahlenwerte) oder Jahresangaben syntaktisch korrekt sind (vierstellige Zahlenwerte). Wir beschr??nken uns auf eine Regel, weitere k??nnen bei Bedarf nach dem gleichen Ansatz hinzugef??gt werden. 
 
-#### Regel "Für die Felder 'funding_start_year' and 'funding_end_year' sind nur 4-stellige Zahlenwerte erlaubt"
+#### Regel "F??r die Felder 'funding_start_year' and 'funding_end_year' sind nur 4-stellige Zahlenwerte erlaubt"
 
-Zuerst schränken wir die zu untersuchende Mengen ein auf jene Fälle, welche überhaupt einen Wert für das Start- bzw. Endjahr zugewiesen bekommen haben. 
+Zuerst schr??nken wir die zu untersuchende Mengen ein auf jene F??lle, welche ??berhaupt einen Wert f??r das Start- bzw. Endjahr zugewiesen bekommen haben. 
 Dabei schliessen wir zum Beispiel die Werte "ongoing" und leere Zeichenketten aus: 
 
 ```{r}
@@ -134,7 +127,7 @@ dq_check_for_valid_funding_start_and_end_years = function(projects) {
 }
 ```
 
-Lassen wir uns nun den berechneten Wert für die Datenqualität dieses Kriteriums ausgeben, sowie eventuell gefundende ungültige Fälle:
+Lassen wir uns nun den berechneten Wert f??r die Datenqualit??t dieses Kriteriums ausgeben, sowie eventuell gefundende ung??ltige F??lle:
 ### Ergebnis: 
 ```{r}
 dq_check_for_valid_funding_start_and_end_years(projects)
@@ -143,11 +136,11 @@ dq_check_for_valid_funding_start_and_end_years(projects)
 Es wurden also keine Regelverletzungen gefunden. 
 
 
-## Semantische Validität der Entitäten
-Ein gewisses Maß an semantischer Validität lässt sich automatisch überprüfen, zum Beispiel durch den Test von logischen Bedingungen/Regeln. 
-Wir beschränken uns hier exemplarische auf eine Regel, bei Bedarf lassen sich noch weitere identifizieren und nach dem gleichen Ansatz testen. 
+## Semantische Validit??t der Entit??ten
+Ein gewisses Ma?? an semantischer Validit??t l??sst sich automatisch ??berpr??fen, zum Beispiel durch den Test von logischen Bedingungen/Regeln. 
+Wir beschr??nken uns hier exemplarische auf eine Regel, bei Bedarf lassen sich noch weitere identifizieren und nach dem gleichen Ansatz testen. 
 
-#### Regel: Für die Ressource 'Projekt' müssen die Werte des Feldes 'funding_start_year' gleich oder kleiner sein als die Werte des Feldes 'funding_end_year' (sofern letzteres gesetzt ist)
+#### Regel: F??r die Ressource 'Projekt' m??ssen die Werte des Feldes 'funding_start_year' gleich oder kleiner sein als die Werte des Feldes 'funding_end_year' (sofern letzteres gesetzt ist)
 
 ```{r}
 dq_check_semantic_validity_of_enteties_start_funding_year_before_end_funding_year = function(projects) {
@@ -182,13 +175,13 @@ dq_check_semantic_validity_of_enteties_start_funding_year_before_end_funding_yea
 dq_check_semantic_validity_of_enteties_start_funding_year_before_end_funding_year(projects)
 ```
 
-Für das Projekt mit der Id 233526993 haben wir somit eine Verletzung der Regel entdeckt. 
-Zum Zeitpunkt der letzten Überarbeitung dieses R-Notebooks hat dieses Projekt (http://gepris.dfg.de/gepris/projekt/233526993?language=en) tatsächlich fehlerhafte Angaben zum Förderungszeitraum gemacht ("Term: from 2013 to 2012"). 
+F??r das Projekt mit der Id 233526993 haben wir somit eine Verletzung der Regel entdeckt. 
+Zum Zeitpunkt der letzten ??berarbeitung dieses R-Notebooks hat dieses Projekt (http://gepris.dfg.de/gepris/projekt/233526993?language=en) tats??chlich fehlerhafte Angaben zum F??rderungszeitraum gemacht ("Term: from 2013 to 2012"). 
 
 
-## Vertrauenswürdigkeit auf Entitätsebene mittels Quellennachweis
+## Vertrauensw??rdigkeit auf Entit??tsebene mittels Quellennachweis
 
-Für dieses Kriterium testen wir, für wie viele Entitäten der drei Resourcentypen wir die zugehörigen und vom Crawler zu speichernden HTML-Seiten der Gepris-Anwendung im Ordner 'html' auffinden können. 
+F??r dieses Kriterium testen wir, f??r wie viele Entit??ten der drei Resourcentypen wir die zugeh??rigen und vom Crawler zu speichernden HTML-Seiten der Gepris-Anwendung im Ordner 'html' auffinden k??nnen. 
 
 
 ```{r}
@@ -201,7 +194,7 @@ check_number_of_existing_html_files_for_ressource_type = function(resource_type,
 }
 ```
 
-Für Projekte: 
+F??r Projekte: 
 ```{r}
 number_of_existing_htmls_for_projects = check_number_of_existing_html_files_for_ressource_type("project", projects$project_id)
 dq_value = number_of_existing_htmls_for_projects / nrow(projects)
@@ -209,14 +202,14 @@ dq_value
 ```
 
 
-Für Institutionen: 
+F??r Institutionen: 
 ```{r}
 dq_value = check_number_of_existing_html_files_for_ressource_type("institution", institutions$institution_id) / nrow(institutions)
 dq_value
 ```
 
 
-Für Personen: 
+F??r Personen: 
 ```{r}
 dq_value = check_number_of_existing_html_files_for_ressource_type("person", persons$person_id) / nrow(persons)
 dq_value
@@ -224,11 +217,11 @@ dq_value
 
 
 
-## Konsistenz bezüglich definierter Beziehungseinschränkungen
+## Konsistenz bez??glich definierter Beziehungseinschr??nkungen
 
-Es geht bei diesem Kriterium um die Überprüfung vorher zu definierender Konsistenzregeln hinsichtlich der Beziehungen zwischen Entitäten. Beispielsweise ließe sich eine Regel ausdrücken, welche erwartet, dass die Dienstanschriften aller im System gespeicherter Personen sich auf eine ebenfalls im System hinterlegte Institution beziehen lassen. 
+Es geht bei diesem Kriterium um die ??berpr??fung vorher zu definierender Konsistenzregeln hinsichtlich der Beziehungen zwischen Entit??ten. Beispielsweise lie??e sich eine Regel ausdr??cken, welche erwartet, dass die Dienstanschriften aller im System gespeicherter Personen sich auf eine ebenfalls im System hinterlegte Institution beziehen lassen. 
 
-Wir wollen exemplarisch folgende Bedingungen prüfen: 
+Wir wollen exemplarisch folgende Bedingungen pr??fen: 
 
 #### Regel "Alle Fachgebiete (subject_areas) aus den Projekten sind auch in der offiziellen DFG-Fachsystematik vertreten (gespeichert in der CSV-Datei subject_areas.csv)."
 
@@ -255,25 +248,25 @@ dq_check_semantic_validity_of_enteties_start_funding_year_before_end_funding_yea
 ```
 
 ##### Interpretation des Ergebnisses
-Zum Zeitpunkt der letzten Überarbeitung dieses R-Notebooks (2018-10-25) waren ca. die Hälfte aller aus Projekten extrahieren subject_areas nicht in der offiziellen Fachsystematik zu finden. 
+Zum Zeitpunkt der letzten ??berarbeitung dieses R-Notebooks (2018-10-25) waren ca. die H??lfte aller aus Projekten extrahieren subject_areas nicht in der offiziellen Fachsystematik zu finden. 
 
-Dies liegt daran, dass die Extractor-Logik des Crawlers nicht in allen Fällen korrekt funktioniert. 
-Diese trennt die einzelnen Fachgebiete anhand von Kommas. Es kann aber passieren, dass ein Fachgebiet selbst Kommas enthält. 
-Ein Beispiel dafür ist das folgende Fachgebiet: 
+Dies liegt daran, dass die Extractor-Logik des Crawlers nicht in allen F??llen korrekt funktioniert. 
+Diese trennt die einzelnen Fachgebiete anhand von Kommas. Es kann aber passieren, dass ein Fachgebiet selbst Kommas enth??lt. 
+Ein Beispiel daf??r ist das folgende Fachgebiet: 
 "Hydrogeology, Hydrology, Limnology, Urban Water Management, Water Chemistry, Integrated Water Resources Management"
 
-In vielen Fällen werden auf den Gepris-Seiten jedoch die einzelnen Fachgebiete durch Kommas getrennt, in anderen Fällen jedoch durch Zeilenumbruch. 
-Für das soeben als Beispiel genannte Fachgebiet wird beispielsweise im Falle des Projektes mit der Id 240126350
-dieses Fachgebiet, welches selbst Kommas im Namen enthält, von dem zweiten Fachgebiet "Soil Sciences" durch einen Zeilenumbruch getrennt. 
-Daher ist eine zuverlässige Umsetzung der Extractor-Logik schwierig. 
-Eine Möglichkeit, dies in der Zukunft zu lösen, könnte es sein, für jedes Projekt den gesamten String (also den kompletten Feldwert auf der Webseite), welche die Fachgebiete beinhaltet, auf Vorkommnisse von Fachgebieten aus der offiziellen DFG-Fachsystematik (hinterlegt in der Datei "subject_areas.cvv" hin zu prüfen. 
-Dies ist zwar hinsichtlich des Laufzeitverhaltens kostenintensiver als ein einfaches Trennen anhand von Zeilenumbrüchen und Kommas, jedoch akkurater. 
+In vielen F??llen werden auf den Gepris-Seiten jedoch die einzelnen Fachgebiete durch Kommas getrennt, in anderen F??llen jedoch durch Zeilenumbruch. 
+F??r das soeben als Beispiel genannte Fachgebiet wird beispielsweise im Falle des Projektes mit der Id 240126350
+dieses Fachgebiet, welches selbst Kommas im Namen enth??lt, von dem zweiten Fachgebiet "Soil Sciences" durch einen Zeilenumbruch getrennt. 
+Daher ist eine zuverl??ssige Umsetzung der Extractor-Logik schwierig. 
+Eine M??glichkeit, dies in der Zukunft zu l??sen, k??nnte es sein, f??r jedes Projekt den gesamten String (also den kompletten Feldwert auf der Webseite), welche die Fachgebiete beinhaltet, auf Vorkommnisse von Fachgebieten aus der offiziellen DFG-Fachsystematik (hinterlegt in der Datei "subject_areas.cvv" hin zu pr??fen. 
+Dies ist zwar hinsichtlich des Laufzeitverhaltens kostenintensiver als ein einfaches Trennen anhand von Zeilenumbr??chen und Kommas, jedoch akkurater. 
 
-Doch auch mit diesem Ansatz würden einige der Problemfälle bestehen bleiben: Es gibt auch Fälle, wo die nicht gelungene Zuordnung nicht auf eine nicht alle Sonderheiten abdeckende Extractor-Logik zurückzuführen ist, sondern auf Inkonsistenzen seitens der Gepris. Beispielsweise wird im Falle des Projektes mit der Id 5122166 direkt auf der Webseite (http://gepris.dfg.de/gepris/projekt/5122166?language=en), das Fachgebiet “Animal Physiology and Biochemistry” angegeben, für welches es keine Entsprechung innerhalb der Tabelle subjec_areas (die offizielle DFG-Fachsystematik) gibt. Eine inakkurate Extractor-Logik als Grund fällt hier also weg.
+Doch auch mit diesem Ansatz w??rden einige der Problemf??lle bestehen bleiben: Es gibt auch F??lle, wo die nicht gelungene Zuordnung nicht auf eine nicht alle Sonderheiten abdeckende Extractor-Logik zur??ckzuf??hren ist, sondern auf Inkonsistenzen seitens der Gepris. Beispielsweise wird im Falle des Projektes mit der Id 5122166 direkt auf der Webseite (http://gepris.dfg.de/gepris/projekt/5122166?language=en), das Fachgebiet ???Animal Physiology and Biochemistry??? angegeben, f??r welches es keine Entsprechung innerhalb der Tabelle subjec_areas (die offizielle DFG-Fachsystematik) gibt. Eine inakkurate Extractor-Logik als Grund f??llt hier also weg.
 
-#### Regel "Für alle Personen-Id und Institutions-Ids, welche in eienr Beziehungstabelle auftauchen, sind auch in der entsprechenden Primärtabelle (personen bzw. institutione) vertreten"
+#### Regel "F??r alle Personen-Id und Institutions-Ids, welche in eienr Beziehungstabelle auftauchen, sind auch in der entsprechenden Prim??rtabelle (personen bzw. institutione) vertreten"
 
-Eine Verletzung dieser Regel wurde beim Crawling-Ergebnis der früheren Crawler-Version festgestellt (es gab Personen-Ids in einer Beziehungstabelle, welche keine Einträge in der Primärtabelle 'Personen' aufwiesen). 
+Eine Verletzung dieser Regel wurde beim Crawling-Ergebnis der fr??heren Crawler-Version festgestellt (es gab Personen-Ids in einer Beziehungstabelle, welche keine Eintr??ge in der Prim??rtabelle 'Personen' aufwiesen). 
 
 ```{r}
 institution_ids_without_primary_table_entry = project_institution_relations %>%
@@ -284,7 +277,7 @@ no_of_success_cases = no_of_total_cases - nrow(institution_ids_without_primary_t
 dq_value = no_of_success_cases / no_of_total_cases
 ```
 
-##### Ergebnis für Institutionen: 
+##### Ergebnis f??r Institutionen: 
 ```{r}
 dq_value
 ```
@@ -298,30 +291,30 @@ no_of_success_cases = no_of_total_cases - nrow(person_ids_without_primary_table_
 dq_value = no_of_success_cases / no_of_total_cases
 ```
 
-##### Ergebnis für Personen: 
+##### Ergebnis f??r Personen: 
 ```{r}
 dq_value
 ```
 
 ###### Interpretation des Ergebnisses
-Es wurden zwei Personen-Ids ohne Einträge in der Personen-Tabelle gefunden: 
+Es wurden zwei Personen-Ids ohne Eintr??ge in der Personen-Tabelle gefunden: 
 
-* http://gepris.dfg.de/gepris/person/282670177 für das Projekt http://gepris.dfg.de/gepris/projekt/282669151
-* http://gepris.dfg.de/gepris/person/285790938 für das Projekt http://gepris.dfg.de/gepris/projekt/285789434
+* http://gepris.dfg.de/gepris/person/282670177 f??r das Projekt http://gepris.dfg.de/gepris/projekt/282669151
+* http://gepris.dfg.de/gepris/person/285790938 f??r das Projekt http://gepris.dfg.de/gepris/projekt/285789434
 
-In beiden Fällen handelt es sich bei der Rolle der Personen um ausländische Kooperationspartner. 
-Scheinbar sind diese beiden Personen bisher nicht über den Personenkatalog der Gepris-Anwendung auffindbar und wurden daher vom Crawler nicht erfasst. 
+In beiden F??llen handelt es sich bei der Rolle der Personen um ausl??ndische Kooperationspartner. 
+Scheinbar sind diese beiden Personen bisher nicht ??ber den Personenkatalog der Gepris-Anwendung auffindbar und wurden daher vom Crawler nicht erfasst. 
 
 
-## Vollständige Schemaabdeckung
+## Vollst??ndige Schemaabdeckung
 
-Es soll geprüft werden, ob alle vom Crawler erfassten und bereitgestellten Felder auch tatsächlich alle vom Gepris-System bereitgestellten Felder umfasst. 
-Dazu ist etwas manuelle Arbeit nötig. 
+Es soll gepr??ft werden, ob alle vom Crawler erfassten und bereitgestellten Felder auch tats??chlich alle vom Gepris-System bereitgestellten Felder umfasst. 
+Dazu ist etwas manuelle Arbeit n??tig. 
 Neben den einzelnen Resourcentyp-spezifischen CSV-Dateien, erzeugt er Crawler auch eine Datei mit dem Namen 'generic_field_extractions.csv'. 
-Sie enthält alle gefundenen Felder auf allen gecrawlten Detailseiten zu allen relevanten Resourcentypen (also project, person und institution). 
-Dabei arbeitet sie mit einer Extractor-Logik, weche sich die Erkentniss zu Nutze macht, dass alle Felder, inklusive des Feldnamens und des Weltwertes, sich unabhängig vom Typ der Ressource oder dem Feldtyp über einen einzigen CSS-Selektor identifizieren lassen. 
+Sie enth??lt alle gefundenen Felder auf allen gecrawlten Detailseiten zu allen relevanten Resourcentypen (also project, person und institution). 
+Dabei arbeitet sie mit einer Extractor-Logik, weche sich die Erkentniss zu Nutze macht, dass alle Felder, inklusive des Feldnamens und des Weltwertes, sich unabh??ngig vom Typ der Ressource oder dem Feldtyp ??ber einen einzigen CSS-Selektor identifizieren lassen. 
 
-Wir können damit nun pro Ressourcentyp eine eindeutige Liste von Feldbezeichnern bestimmen: 
+Wir k??nnen damit nun pro Ressourcentyp eine eindeutige Liste von Feldbezeichnern bestimmen: 
 
 ```{r}
 field_names_for_projects = generic_field_extractions %>%
@@ -330,15 +323,15 @@ field_names_for_projects = generic_field_extractions %>%
   distinct %>%
   arrange(field_name)
 ```
-Diese können wir nun abgleichen mit den Feldern, welche vom Crawler explizit erkannt und im Rahmen der Resourcentyp-spezifischen Artefakte bereitgestellt werden. 
+Diese k??nnen wir nun abgleichen mit den Feldern, welche vom Crawler explizit erkannt und im Rahmen der Resourcentyp-spezifischen Artefakte bereitgestellt werden. 
 
-Dabei ist zu unterscheiden zwischen Fällen, wo für das Feld eine eigene Spalte in einer der CSV-Dateien vorgesehen ist (beispielsweise die project_id oder die description eines Projektes) und jenen Fällen von Beziehungen zwischen den Resourcen, welche eine hohe Variabilität der Beziehungsart und des Vorkommens dieser auf den einzelnen Resource-Seiten aufweisen. 
-In diesen Fällen wurde der Feldtyp (welcher sich aus dem Feldnamen auf der Gepris-Webseite ableitet) nicht direkt als eigene Spalte erfasst. 
+Dabei ist zu unterscheiden zwischen F??llen, wo f??r das Feld eine eigene Spalte in einer der CSV-Dateien vorgesehen ist (beispielsweise die project_id oder die description eines Projektes) und jenen F??llen von Beziehungen zwischen den Resourcen, welche eine hohe Variabilit??t der Beziehungsart und des Vorkommens dieser auf den einzelnen Resource-Seiten aufweisen. 
+In diesen F??llen wurde der Feldtyp (welcher sich aus dem Feldnamen auf der Gepris-Webseite ableitet) nicht direkt als eigene Spalte erfasst. 
 Vielmehr werden die Feldnamen und -werte in Form einer ausgelagerten Tabelle mit der Struktur (resource1-id, resource2-id, relation_type) abgelegt. 
 Hier muss also pro Beziehungstabelle die eindeutige Liste der Werte der Spalte 'relation_type' mit in Betracht gezogen werden. 
 ```{r}
 all_extracted_project_field_names = unique(unlist(c(
-# Felder, welche direkt als Spalten in den CSV-Dateien repräsentiert sind: 
+# Felder, welche direkt als Spalten in den CSV-Dateien repr??sentiert sind: 
   names(projects),
   names(project_ids_to_subject_areas), 
   names(project_ids_to_participating_subject_areas), 
@@ -356,21 +349,21 @@ all_extracted_project_field_names = unique(unlist(c(
 
 ### Manueller Abgleich
 Das Ergebnis ist durch einen manuellen Vergleich zwischen den Variablen field_names_for_projects und all_extracted_project_field_names zu ermitteln. 
-Zum Zeitpunkt der letzten Überarbeitung dieses R-Notebooks (2018-10-25) wurde folgendes Ergebnis ermittelt: 
+Zum Zeitpunkt der letzten ??berarbeitung dieses R-Notebooks (2018-10-25) wurde folgendes Ergebnis ermittelt: 
 
 Alle Felder welche vom Crawler erfasst und bereitgestellt werden sollten: 
 ```{r}
 field_names_for_projects
 ```
 
-Alle Felder welche vom Crawler tatsächlich erfasst und bereitgestellt wurden: 
+Alle Felder welche vom Crawler tats??chlich erfasst und bereitgestellt wurden: 
 ```{r}
 all_extracted_project_field_names
 ```
 
 ### Ergebnis
 
-Der manuelle Abgleich hat hierbei ergeben, dass für folgende Projekt-bezogene Felder, extrahiert auf Basis der generischen CSV-Datei "generic_field_extractions.csv" keine Entsprechung in einer der explizit Projekt-bezogenen CSV-Dateien gefunden wurden: 
+Der manuelle Abgleich hat hierbei ergeben, dass f??r folgende Projekt-bezogene Felder, extrahiert auf Basis der generischen CSV-Datei "generic_field_extractions.csv" keine Entsprechung in einer der explizit Projekt-bezogenen CSV-Dateien gefunden wurden: 
 
 * DFG programme contact
 * Major Instrumentation
@@ -378,15 +371,15 @@ Der manuelle Abgleich hat hierbei ergeben, dass für folgende Projekt-bezogene F
 
 Dabei ist anzumerken, dass das Feld "Subproject of" umbenannt wurde in "parent_project_id", das Feld "term" aufegeilt wurde in die Felder "funding_start_year" und "funding_end_year" und Namensvariationen von in semantischer Hinsicht ein und demselben Feld auf einen einzigen, einheitlichen Feldnamen abgebildet werden. 
 
-Darüber hinaus sind andere, eher "versteckte" Informationen extrahierbar, welche von dem hier vorgestellten Ansatz mittels des generischen CSS-Selektors nicht erfasst werden. So sind zum Beispiel verstorbene Personen mit einem kleinen Kreuz hinter ihrem Namen markiert und der Text zur Auswertung von abeschlossenen Projekten befindet sich auf einer jeweils gesonderten HTML-Seite. So müssten diese Information streng genommen auch als "Feld" mit in die Auswertung und, sofern gewünscht, mit in den Crawler übernommen werden, derzeit werden beide Informationen vom Crawler nicht erfasst. 
+Dar??ber hinaus sind andere, eher "versteckte" Informationen extrahierbar, welche von dem hier vorgestellten Ansatz mittels des generischen CSS-Selektors nicht erfasst werden. So sind zum Beispiel verstorbene Personen mit einem kleinen Kreuz hinter ihrem Namen markiert und der Text zur Auswertung von abeschlossenen Projekten befindet sich auf einer jeweils gesonderten HTML-Seite. So m??ssten diese Information streng genommen auch als "Feld" mit in die Auswertung und, sofern gew??nscht, mit in den Crawler ??bernommen werden, derzeit werden beide Informationen vom Crawler nicht erfasst. 
 
 
 
-## Vollständige Spaltenbelegung 
-Dieses Kriterium lässt sich mittels einer beliebig großen Testprobe pro Resourcentyp mit einem Abgleich zwischen den vom Crawler bereitgestellten und den Daten auf der Gepris-Anwendung prüfen. Dabei gilt: je größer die Testprobe, desto mehr manueller Aufwand ist nötig und desto repräsentativer ist diese. 
+## Vollst??ndige Spaltenbelegung 
+Dieses Kriterium l??sst sich mittels einer beliebig gro??en Testprobe pro Resourcentyp mit einem Abgleich zwischen den vom Crawler bereitgestellten und den Daten auf der Gepris-Anwendung pr??fen. Dabei gilt: je gr????er die Testprobe, desto mehr manueller Aufwand ist n??tig und desto repr??sentativer ist diese. 
 
-Für die Reproduzierbarkeit werden wir hier eine einmalig erzeugte, zufällige Testmenge statisch definieren. 
-Bei Bedarf kann diese natürlich erneuert werden. 
+F??r die Reproduzierbarkeit werden wir hier eine einmalig erzeugte, zuf??llige Testmenge statisch definieren. 
+Bei Bedarf kann diese nat??rlich erneuert werden. 
 
 ```{r}
 # sample_set_of_projects_ids = projects[sample(nrow(projects),10),]$project_id
@@ -412,8 +405,8 @@ kable(sample_set_of_projects_from_crawling_files)
 ```
 
 
-Wir erzeugen die zugehörigen URLs für jede Testentität und lassen alle URLs im Browser öffnen. 
-Der Nutzer kann dann den manuellen Abgleich über die geöffneten Geprisseiten vornehmen. 
+Wir erzeugen die zugeh??rigen URLs f??r jede Testentit??t und lassen alle URLs im Browser ??ffnen. 
+Der Nutzer kann dann den manuellen Abgleich ??ber die ge??ffneten Geprisseiten vornehmen. 
 
 ```{r, results='hide'}
 sample_set_of_project_urls = lapply(sample_set_of_project_ids, function(project_id) {
@@ -432,21 +425,21 @@ dq_value = number_of_projects_with_complete_column_covering/total_number_of_case
 ```
 
 
-Im Zuge des manuellen Abgleichs mit den Originalseiten der Gepris wurden folgende Mängel entdeckt: 
-Die Anstragsteller (Applicants) für das Projekt mit der Id 40157239 (http://gepris.dfg.de/gepris/projekt/40157239?language=en)
+Im Zuge des manuellen Abgleichs mit den Originalseiten der Gepris wurden folgende M??ngel entdeckt: 
+Die Anstragsteller (Applicants) f??r das Projekt mit der Id 40157239 (http://gepris.dfg.de/gepris/projekt/40157239?language=en)
 wurden nicht extrahiert. 
 
-Für die Qualitätsmetrik wurde insgesamt folgender Wert anhand der (sehr kleinen) Testprobe gemessen, welche lediglich einen Anhaltspunkt für weitere, größere Proben geben kann: 
+F??r die Qualit??tsmetrik wurde insgesamt folgender Wert anhand der (sehr kleinen) Testprobe gemessen, welche lediglich einen Anhaltspunkt f??r weitere, gr????ere Proben geben kann: 
 ```{r}
 dq_value
 ```
 
 
 
-## Vollständige Populationsabdeckung
+## Vollst??ndige Populationsabdeckung
 
-Der Crawler speichert die Anzahl der von der Gepris bereitgestellten Entitäten pro Entitätstyp in der ersten Stufe des Crawlingvorgangs ab. Wir können diese Angabe dabei als Referenzwert nutzen und mit der Anzahl der vom Crawler bereitgestellten Entitäten vergleichen. 
-Diesen Wert holt er sich dabei jeweils über die Suchfunktion des Gepris-Systems, welche die Gesamtanzahl der Entitäten der aktuell durchsuchten Ressource innerhalb des Navigationsmenüs angibt. 
+Der Crawler speichert die Anzahl der von der Gepris bereitgestellten Entit??ten pro Entit??tstyp in der ersten Stufe des Crawlingvorgangs ab. Wir k??nnen diese Angabe dabei als Referenzwert nutzen und mit der Anzahl der vom Crawler bereitgestellten Entit??ten vergleichen. 
+Diesen Wert holt er sich dabei jeweils ??ber die Suchfunktion des Gepris-Systems, welche die Gesamtanzahl der Entit??ten der aktuell durchsuchten Ressource innerhalb des Navigationsmen??s angibt. 
 
 ```{r}
 get_no_of_resources_from_txt_file = function(resource_type) {
@@ -473,7 +466,7 @@ total_number_of_resources_in_crawled_data = no_of_projects_in_crawled_data + no_
 dq_value = total_number_of_resources_in_crawled_data / total_number_of_resources_in_gepris_website
 ```
 
-Gemessen wurde folgendes Verhältnis (Anzahl gecrawlte Ressourcen im Vergleich zur Anzahl wie sie auf der Gepris-Website angegeben war)
+Gemessen wurde folgendes Verh??ltnis (Anzahl gecrawlte Ressourcen im Vergleich zur Anzahl wie sie auf der Gepris-Website angegeben war)
 ```{r}
 dq_value
 ```
@@ -481,16 +474,16 @@ dq_value
 
 
 
-## Validitäat der ursprünglichen Gepris-Seiten-URLs
+## Validit??at der urspr??nglichen Gepris-Seiten-URLs
 
-Ansatz: Wir erzeugen für jeden Resourcentyp eine beliebige große Menge an Stichproben und generieren für jede Entität in jeder Stichprobe die entsprechende Gepris-URL anhand der Entitäts-id. 
-Diese URLs rufen wir dann programmatisch auf und zählen, wie viele der HTTP-Anfragen den Seiteninhalt "The requested page was not found." aufweisen. 
-Dies stellt dann die Menge an Erfolgsfällen dar, welche wir zur Berechnung der Kriteriumsqualität nutzen. 
-Der elegantere Ansatz, den Status-Code "success" (HTTP-Status-Code: 200) als Indiz zu nutzen, ist leider nicht nutzbar, da die Gepris-Anwendung auch im Falle einer nicht gefundenen Resource fälschlicherweise den HTTP-Code 200 zurückgibt (Beispiel einer invaliden URL: http://gepris.dfg.de/gepris/projekt/123456789123456789?language=en)
+Ansatz: Wir erzeugen f??r jeden Resourcentyp eine beliebige gro??e Menge an Stichproben und generieren f??r jede Entit??t in jeder Stichprobe die entsprechende Gepris-URL anhand der Entit??ts-id. 
+Diese URLs rufen wir dann programmatisch auf und z??hlen, wie viele der HTTP-Anfragen den Seiteninhalt "The requested page was not found." aufweisen. 
+Dies stellt dann die Menge an Erfolgsf??llen dar, welche wir zur Berechnung der Kriteriumsqualit??t nutzen. 
+Der elegantere Ansatz, den Status-Code "success" (HTTP-Status-Code: 200) als Indiz zu nutzen, ist leider nicht nutzbar, da die Gepris-Anwendung auch im Falle einer nicht gefundenen Resource f??lschlicherweise den HTTP-Code 200 zur??ckgibt (Beispiel einer invaliden URL: http://gepris.dfg.de/gepris/projekt/123456789123456789?language=en)
 
 
-Für die Reproduzierbarkeit werden wir hier eine einmalig erzeugte, zufällige Testmenge statisch definieren. 
-Bei Bedarf kann diese natürlich erneuert werden. 
+F??r die Reproduzierbarkeit werden wir hier eine einmalig erzeugte, zuf??llige Testmenge statisch definieren. 
+Bei Bedarf kann diese nat??rlich erneuert werden. 
 
 ```{r}
 # sample_set_of_project_ids = projects[sample(nrow(projects),100),]$project_id
@@ -532,7 +525,7 @@ test_http_requests_for_resource_ids_and_resource_url_name = function(resource_id
 ```
 
 
-Bevor wir die eigentlichen Resourcen-URLs auf ihre Verfügbarkeit hin prüfen, wollen wir zuvor sicherstellen, dass für eine im Gepris-System nicht vorhandene Resouren-URL (in diesem Fall für ein Projekt mit der nicht vorhandenen Id 123456789123456789) unser gewählter Ansatz kein falsch-positives Ergebnis liefert: 
+Bevor wir die eigentlichen Resourcen-URLs auf ihre Verf??gbarkeit hin pr??fen, wollen wir zuvor sicherstellen, dass f??r eine im Gepris-System nicht vorhandene Resouren-URL (in diesem Fall f??r ein Projekt mit der nicht vorhandenen Id 123456789123456789) unser gew??hlter Ansatz kein falsch-positives Ergebnis liefert: 
 
 ```{r}
 test_http_requests_for_resource_ids_and_resource_url_name(123456789123456789, "projekt")

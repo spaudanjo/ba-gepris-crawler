@@ -1,4 +1,5 @@
-setwd("/Users/dspaude/code/b-arbeit/gepris-crawls/2018-12-14--19-48-38-EN/stage2")
+# setwd("/Users/dspaude/code/b-arbeit/gepris-crawls/2018-12-14--19-48-38-EN/stage2")
+setwd("/Users/dspaude/code/b-arbeit/gepris-crawls/DQ-Notebook-with-crawl-from_final_2018-10-28--11-07-37-EN/stage2")
 
 if (!require("tidyr")) install.packages("tidyr")
 if (!require("dplyr")) install.packages("dplyr")
@@ -346,3 +347,54 @@ project_international_connections = generic_fields %>%
     country = field_value
   ) %>%
   mutate(country = gsub("<br>", "", country))
+
+
+
+
+# Save the extracted tables as CSV files
+root_export_path = "../r-based-extractions"
+dir.create(root_export_path, showWarnings = FALSE)
+write.csv(people, paste(root_export_path, "people.csv", sep = "/"))
+write.csv(institutions, paste(root_export_path, "institutions.csv", sep = "/"))
+write.csv(projects, paste(root_export_path, "projects.csv", sep = "/"))
+write.csv(cleaned_project_relations, paste(root_export_path, "cleaned_project_relations.csv", sep = "/"))
+write.csv(project_subject_areas, paste(root_export_path, "project_subject_areas.csv", sep = "/"))
+write.csv(project_participating_subject_areas, paste(root_export_path, "project_participating_subject_areas.csv", sep = "/"))
+write.csv(project_international_connections, paste(root_export_path, "project_international_connections.csv", sep = "/"))
+
+
+
+################################################################################
+# Compare with old Scala based extract
+root_csv_path = "../final/csv"
+
+
+OLD_subject_areas = read.csv(file.path(root_csv_path, "subject_areas.csv"))
+
+OLD_projects = read.csv(file.path(root_csv_path, "project/extracted_project_data.csv"), stringsAsFactors=FALSE)
+OLD_project_ids_to_subject_areas = read.csv(file.path(root_csv_path, "project/project_ids_to_subject_areas.csv"), stringsAsFactors=FALSE)
+OLD_project_ids_to_participating_subject_areas = read.csv(file.path(root_csv_path, "project/project_ids_to_participating_subject_areas.csv"), stringsAsFactors=FALSE)
+OLD_projects_international_connections = read.csv(file.path(root_csv_path, "project/projects_international_connections.csv"), stringsAsFactors=FALSE)
+
+OLD_project_person_relations = read.csv(file.path(root_csv_path, "project/project_person_relations.csv"), stringsAsFactors=FALSE)
+OLD_project_institution_relations = read.csv(file.path(root_csv_path, "project/project_institution_relations.csv"), stringsAsFactors=FALSE)
+
+OLD_persons = read.csv(file.path(root_csv_path, "person/extracted_person_data.csv"), stringsAsFactors=FALSE)
+
+OLD_institutions = read.csv(file.path(root_csv_path, "institution/extracted_institution_data.csv"), stringsAsFactors=FALSE)
+
+## Comparisons
+nrow(institutions) == nrow(OLD_institutions)
+
+nrow(projects) == nrow(OLD_projects)
+
+nrow(people) == nrow(OLD_persons)
+
+deduplicated_project_relations = project_relations %>% 
+  distinct(project_id, reference_resource_type, reference_resource_id, relation_type)
+nrow(project_relations)
+nrow(deduplicated_project_relations)
+nrow(OLD_project_person_relations) + nrow(OLD_project_institution_relations)
+
+
+
