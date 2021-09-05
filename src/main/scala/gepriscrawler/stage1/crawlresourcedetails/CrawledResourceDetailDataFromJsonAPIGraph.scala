@@ -21,7 +21,7 @@ object CrawledResourceDetailDataFromJsonAPIGraph
       .mapAsync(2) { resourceId =>
         Http().singleRequest(
           HttpRequest(
-            uri = s"http://gepris-extern.dfg.de/$resourceNameForUrlQuery/$resourceId"
+            uri = s"https://gepris-extern.dfg.de/$resourceNameForUrlQuery/$resourceId"
           )
         )
           .map((resourceId -> _))

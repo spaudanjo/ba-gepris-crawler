@@ -33,7 +33,7 @@ object CookieFlowGraph {
     val requestNewCookie = () =>
       Http().singleRequest(
         HttpRequest(
-          uri = s"http://gepris.dfg.de/gepris/projekt/123456",
+          uri = s"https://gepris.dfg.de/gepris/projekt/123456",
           headers = List(Cookie("JSESSIONID", "INITIAL-DUMMY-SESSION"))
         )
       ).map(resp => resp.headers.find(_.name() == "Set-Cookie").map { cookie =>

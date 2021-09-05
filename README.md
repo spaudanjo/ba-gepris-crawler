@@ -3,7 +3,7 @@
 *Hinweis: Angaben zu gemachten Beobachtungen und Berechnungen auf Grundlage der gecrawlten Gepris-Daten beziehen sich auf den Stand der Gepris-Website vom 20.10.2018*
 
 
-Der Gepris Crawler ist eine in Scala geschriebene Konsolenanwendung, welche die von der DFG bereitgestellten Förderungsdaten (http://gepris.dfg.de) crawled, extrahiert und in einem Ordner in Form von CSV- und Text-Dateien zur Verfügung stellt. 
+Der Gepris Crawler ist eine in Scala geschriebene Konsolenanwendung, welche die von der DFG bereitgestellten Förderungsdaten (https://gepris.dfg.de) crawled, extrahiert und in einem Ordner in Form von CSV- und Text-Dateien zur Verfügung stellt. 
 
 Die Software entstand im Rahmen der Anfertigung der Bachelorarbeit von Daniel Spaude im Fach Informatik an der Freien Universität Berlin im Jahr 2018. 
 
@@ -73,13 +73,13 @@ Dieser Befehl kompiliert und packt die Anwendung und erstellt dann das Docker-Im
 
 Bevor die auf die Ausgabeartefakte des Crawlers und damit auf die bereitgetellten Informationen und auf deren Organisation beschrieben wird, soll auf das Gepris-System an sich eingegangen werden und insbesondere auf die drei zentralen Resourcentypen Projekte, Institutionen und Personen, sowie auf die Fachsystematik. 
 
-Gepris steht für "Geförderte Projekte der DFG". Die DFG (Deutsche Forschungsgemeinschaft) stellt über die [Gepris-Webanwendung](http://gepris.dfg.de/gepris/OCTOPUS) umfangreiche Informationen zu den von ihnen gemachten Förderungsaktivitäten bereit. 
+Gepris steht für "Geförderte Projekte der DFG". Die DFG (Deutsche Forschungsgemeinschaft) stellt über die [Gepris-Webanwendung](https://gepris.dfg.de/gepris/OCTOPUS) umfangreiche Informationen zu den von ihnen gemachten Förderungsaktivitäten bereit. 
 Im Vordergrund stehen dabei vor allem die geförderten Projekte an sich, sowie die damit in Verbindung stehenden Institutionen und Personen. 
 
-Neben einer Freitextsuche lassen sich alle Entitäten dieser drei Resourcentypen durch ein [Katalogsystem](http://gepris.dfg.de/gepris/OCTOPUS?task=showKatalog) auflisten, wobei 
+Neben einer Freitextsuche lassen sich alle Entitäten dieser drei Resourcentypen durch ein [Katalogsystem](https://gepris.dfg.de/gepris/OCTOPUS?task=showKatalog) auflisten, wobei 
 die jeweiligen Detailseiten zu jeder Entiät direkt verlinkt sind. 
 Ein Beispiel für eine Detailseite zum Resourcentyp 'Projekt' ist unter folgender URL zu finden: 
-http://gepris.dfg.de/gepris/projekt/268853?language=de
+https://gepris.dfg.de/gepris/projekt/268853?language=de
 
 ### Personen und Institutionen 
 Beide Ressourcen sind sehr einfach gehalten und selbsterklärend, sie enthalten Namen, Adressdaten und eine Liste von Projekte, zu welchen eine Beziehung besteht. 
@@ -96,9 +96,9 @@ Beispiel: 'GRK 6:  Räumliche Statistik'
 Beispiel: 'Mathematik'
 
 Die DFG organisiert sich bezüglich der fachlichen Zuordnung von Projekten bei ihren Förderungsaktivitäten in einer vierstufigen Systematik, welche näher unter folgenden beiden URLs beschrieben ist und auf deren Stufen hier kurz eingegangen werden soll: 
-* http://www.dfg.de/en/dfg_profile/statutory_bodies/review_boards/subject_areas/index.jsp
+* https://www.dfg.de/en/dfg_profile/statutory_bodies/review_boards/subject_areas/index.jsp
 
-* http://www.dfg.de/download/pdf/dfg_im_profil/gremien/fachkollegien/amtsperiode_2016_2019/fachsystematik_2016-2019_de_grafik.pdf
+* https://www.dfg.de/download/pdf/dfg_im_profil/gremien/fachkollegien/amtsperiode_2016_2019/fachsystematik_2016-2019_de_grafik.pdf
 
 ##### 1. Stufe: Wissenschaftsbereiche (Scientific Discipline) 
 Auf der obersten Ebene stehen dabei die Wissenschaftsbereiche (Scientific Discipline), wo von es insgesamt vier Stück gibt: 
@@ -134,7 +134,7 @@ Beispiele hierfür sind 'Geschichtswissenschaften', 'Zoologie', 'Wasserforschung
 Auf der untersten Stufe sind schlussendlich die einzelnen Fächer aufgelistet. Es gibt insgesamt 213 Fächer und Beispiele sind 'Softwaretechnik und Programmiersprachen', 'Physische Geographie', 'Systemische Neurowissenschaft, Computational Neuroscience, Verhalten' oder 'Theater- und Medienwissenschaften'. 
 
 
-Auf eine festgestellte Diskrepanz zwischen dieser offiziellen, von der DFG so dargestellten Systematik, und jener des Feldes `Fachgebiet` auf der [Katalog-Maske für Projekte im Gepris-System](http://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt), wird im Abschnitt 'Inkonsistenzen hinsichtlich der Fachsystematik' eingegangen. 
+Auf eine festgestellte Diskrepanz zwischen dieser offiziellen, von der DFG so dargestellten Systematik, und jener des Feldes `Fachgebiet` auf der [Katalog-Maske für Projekte im Gepris-System](https://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt), wird im Abschnitt 'Inkonsistenzen hinsichtlich der Fachsystematik' eingegangen. 
 
 #### Förderung (Term)
 Dieses Feld informiert über den Förderungszeitraum des jeweiligen Projektes. 
@@ -155,7 +155,7 @@ Jedes Projekt verfüg über eine eindeutige Id.
 Eine Zusammenfassung des Forschungsvorhabens in Freitext. 
 
 #### DFG-Verfahren (DFG Programme)
-Die DFG bietet verschiedene Förderprogramme an, welche sich hinsichtlich personellem Umfang, Laufzeit, Anforderungen an den Antragsteller und anderen Aspekten unterscheiden. Eine Übersicht über die verschiedenen Verfahrenstypen findet sich unter http://www.dfg.de/en/research_funding/programmes/index.html. 
+Die DFG bietet verschiedene Förderprogramme an, welche sich hinsichtlich personellem Umfang, Laufzeit, Anforderungen an den Antragsteller und anderen Aspekten unterscheiden. Eine Übersicht über die verschiedenen Verfahrenstypen findet sich unter https://www.dfg.de/en/research_funding/programmes/index.html. 
 
 Im Falle der DFG-Verfahren wird eine dreistufige Organisation verwendet, aufgeteilt in die folgenden Ebenen: 
 * Programmgruppe (Programme Group) - Beispielsweise 'Einzelförderungen'
@@ -217,7 +217,7 @@ Auf oberster Ebene beinhaltet der Ordner die drei Dateien
 * number_of_projects_in_gepris_system.txt
 
 Diese geben pro Resourcentyp die Anzahl der zum Zeitpunkt des Crawling auf der Gepris-Webseite verfügbaren Entitäten an. 
-Die Information wird dabei aus der Navigationleise auf der Katalogseite des jeweiligen Resourcentyps ermittelt, [hier beispielhaft für den Resourcentyp 'Projekte'](http://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt&oldfachgebiet=%23&fachgebiet=%23&nurProjekteMitAB=false&bundesland=DEU%23&oldpeo=%23&peo=%23&zk_transferprojekt=false&teilprojekte=false&teilprojekte=true&bewilligungsStatus=&beginOfFunding=&gefoerdertIn=&oldGgsHunderter=0&ggsHunderter=0&einrichtungsart=-1&findButton=Finden).
+Die Information wird dabei aus der Navigationleise auf der Katalogseite des jeweiligen Resourcentyps ermittelt, [hier beispielhaft für den Resourcentyp 'Projekte'](https://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt&oldfachgebiet=%23&fachgebiet=%23&nurProjekteMitAB=false&bundesland=DEU%23&oldpeo=%23&peo=%23&zk_transferprojekt=false&teilprojekte=false&teilprojekte=true&bewilligungsStatus=&beginOfFunding=&gefoerdertIn=&oldGgsHunderter=0&ggsHunderter=0&einrichtungsart=-1&findButton=Finden).
 
 
 ### Extraktion aller gefundenen Feldwerte für alle Resourcen
