@@ -20,7 +20,7 @@ object ProjectExtractorGraph {
       val allNameFields: Seq[Element] = body.select("span.name").asScala
 
       val title = detailSection
-        .select("h3")
+        .select("h1")
         .text()
 
       val projectDescription = body
