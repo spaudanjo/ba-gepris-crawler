@@ -217,7 +217,7 @@ Auf oberster Ebene beinhaltet der Ordner die drei Dateien
 * number_of_projects_in_gepris_system.txt
 
 Diese geben pro Resourcentyp die Anzahl der zum Zeitpunkt des Crawling auf der Gepris-Webseite verfügbaren Entitäten an. 
-Die Information wird dabei aus der Navigationleise auf der Katalogseite des jeweiligen Resourcentyps ermittelt, [hier beispielhaft für den Resourcentyp 'Projekte'](https://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt&oldfachgebiet=%23&fachgebiet=%23&nurProjekteMitAB=false&bundesland=DEU%23&oldpeo=%23&peo=%23&zk_transferprojekt=false&teilprojekte=false&teilprojekte=true&bewilligungsStatus=&beginOfFunding=&gefoerdertIn=&oldGgsHunderter=0&ggsHunderter=0&einrichtungsart=-1&findButton=Finden).
+Die Information wird dabei aus der Navigationleise auf der Katalogseite des jeweiligen Resourcentyps ermittelt, [hier beispielhaft für den Resourcentyp 'Projekte'](https://gepris.dfg.de/gepris/OCTOPUS?task=doKatalog&context=projekt&oldfachgebiet=%23&fachgebiet=%23&nurProjekteMitAB=false&bundesland=DEU%23&zk_transferprojekt=false&teilprojekte=false&teilprojekte=true&bewilligungsStatus=&beginOfFunding=&gefoerdertIn=&oldGgsHunderter=0&ggsHunderter=0&einrichtungsart=-1&findButton=Finden).
 
 
 ### Extraktion aller gefundenen Feldwerte für alle Resourcen

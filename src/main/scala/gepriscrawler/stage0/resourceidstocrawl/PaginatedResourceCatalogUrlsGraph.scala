@@ -24,7 +24,7 @@ object PaginatedResourceCatalogUrlsGraph {
       .mapConcat { range =>
         range
           .map(_ * resourcesPerPage)
-          .map(pageNumber => s"https://gepris.dfg.de/gepris/OCTOPUS?beginOfFunding=&bewilligungsStatus=&context=${resourceNameForUrlQuery}&continentId=%23&countryKey=%23%23%23&einrichtungsart=-1&fachlicheZuordnung=%23&findButton=historyCall&gefoerdertIn=&hitsPerPage=$resourcesPerPage&index=$pageNumber&null=All+Locations+%2F+Regions&nurProjekteMitAB=false&oldContinentId=%23&oldCountryId=%23%23%23&oldSubContinentId=%23%23&oldpeo=%23&peo=%23&subContinentId=%23%23&task=doSearchExtended&teilprojekte=true&zk_transferprojekt=false&language=$languageCode")
+          .map(pageNumber => s"https://gepris.dfg.de/gepris/OCTOPUS?beginOfFunding=&bewilligungsStatus=&context=${resourceNameForUrlQuery}&continentId=%23&countryKey=%23%23%23&einrichtungsart=-1&fachlicheZuordnung=%23&findButton=historyCall&gefoerdertIn=&hitsPerPage=$resourcesPerPage&index=$pageNumber&null=All+Locations+%2F+Regions&nurProjekteMitAB=false&oldContinentId=%23&oldCountryId=%23%23%23&oldSubContinentId=%23%23&subContinentId=%23%23&task=doSearchExtended&teilprojekte=true&zk_transferprojekt=false&language=$languageCode")
       }
     )
     numberOfResources ~> numberOfPages ~> pageUrls
