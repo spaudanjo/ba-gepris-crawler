@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
+enablePlugins(GraalVMNativeImagePlugin)
 mainClass in Compile := Some("gepriscrawler.App")
 
 scalacOptions in Test ++= Seq("-Yrangepos")
