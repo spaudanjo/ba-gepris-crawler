@@ -16,13 +16,13 @@ object InstitutionExtractorGraph {
       val detailSection = body.select("#detailseite > div > div > div.content_frame > div.detailed")
 
       val name = detailSection
-        .select("h3")
+        .select("h1")
         .text()
 
       Institution(
         crawledResourceData.resourceId,
         name = detailSection
-          .select("h3")
+          .select("h1")
           .text(),
         address = detailSection
           .select("span.name:matches(Address) + span")
@@ -42,8 +42,8 @@ object InstitutionExtractorGraph {
           .split("<img[^<]*>")
           .mkString("@"),
         internet = detailSection
-          .select("span.name:matches(Website) + span")
-          .text(),
+          .select("span.name:matches(Website) + span > a")
+          .attr("href"),
         projectIdsOnInstitutionDetailPage = detailSection
           .select("#projekteNachProgrammen a[href^=/gepris/projekt]").asScala.to[collection.immutable.Seq]
           .map { projectLink =>

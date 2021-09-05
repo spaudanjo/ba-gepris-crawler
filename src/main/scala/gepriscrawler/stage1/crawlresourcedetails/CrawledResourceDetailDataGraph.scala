@@ -24,7 +24,7 @@ object CrawledResourceDetailDataGraph
       .mapAsync(10) { case (cookie, resourceId) =>
         Http().singleRequest(
           HttpRequest(
-            uri = s"http://gepris.dfg.de/gepris/${resourceNameForUrlQuery}/$resourceId?language=$crawledLanguage",
+            uri = s"https://gepris.dfg.de/gepris/${resourceNameForUrlQuery}/$resourceId?language=$crawledLanguage",
             headers = List(cookie)
           )
         )

@@ -29,7 +29,7 @@ object PersonExtractorGraph {
       Person(
         crawledPersonData.resourceId,
         name = detailSection
-          .select("h3")
+          .select("h1")
           .text(),
         institutionName,
         address = address,

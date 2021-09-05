@@ -17,7 +17,7 @@ object NumberOfResourcesGraph {
     import GraphDSL.Implicits._
 
     val resourceNameForUrlQuery = gepriscrawler.GeprisResources.resourceList(resourceType).resourceTyppeForUrlQuery
-    val initialUrl = s"http://gepris.dfg.de/gepris/OCTOPUS?beginOfFunding=&bewilligungsStatus=&context=$resourceNameForUrlQuery&continentId=%23&countryKey=%23%23%23&einrichtungsart=-1&fachlicheZuordnung=%23&findButton=historyCall&gefoerdertIn=&index=0&language=en&null=All+Locations+%2F+Regions&nurProjekteMitAB=false&oldContinentId=%23&oldCountryId=%23%23%23&oldSubContinentId=%23%23&oldpeo=%23&peo=%23&subContinentId=%23%23&task=doSearchExtended&teilprojekte=true&zk_transferprojekt=false"
+    val initialUrl = s"https://gepris.dfg.de/gepris/OCTOPUS?beginOfFunding=&bewilligungsStatus=&context=$resourceNameForUrlQuery&continentId=%23&countryKey=%23%23%23&einrichtungsart=-1&fachlicheZuordnung=%23&findButton=historyCall&gefoerdertIn=&index=0&language=en&null=All+Locations+%2F+Regions&nurProjekteMitAB=false&oldContinentId=%23&oldCountryId=%23%23%23&oldSubContinentId=%23%23&subContinentId=%23%23&task=doSearchExtended&teilprojekte=true&zk_transferprojekt=false"
 
     val cookies = b.add(Flow[Cookie])
     val outbound = b.add(Flow[Int])
